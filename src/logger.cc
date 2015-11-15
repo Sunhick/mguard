@@ -6,12 +6,13 @@
 #include "include/logger.h"
 
 #include <string>
+#include <fstream>
 
 using namespace diagnostics;
 
 std::shared_ptr<logger> logger::instance = nullptr;
 
-logger::logger()
+logger::logger(std::ostream* out)
 {
   colors.insert(std::pair<log_level, modifier>
   		(log_level::DEBUG, modifier(color::FG_BLUE)));
@@ -23,18 +24,22 @@ logger::logger()
   		(log_level::DEFAULT, modifier(color::FG_DEFAULT)));
   colors.insert(std::pair<log_level, modifier>
   		(log_level::WARNING, modifier(color::FG_CYAN)));
+  ofile = out;
+  if (ofile != &std::cout) visual_colors = false;
   debug("logger initialized");
 }
 
 logger::~logger() 
 {
+  instance.reset();
   debug("logger shutdown");
 }
 
 std::shared_ptr<logger> logger::get_logger()
 {
   if (!instance) {
-    instance = std::make_shared<logger>();
+    std::ostream* out = new std::fstream("mguard.log");
+    instance = std::make_shared<logger>(out);
   }
 
   return instance;
@@ -53,7 +58,12 @@ void logger::log(log_level level, const std::string& msg)
     }  
   };
   std::string type = enumstr(level);
-  std::cout << colors.at(level) << type << " " << msg << colors.at(log_level::DEFAULT) << std::endl;
+  
+  if (visual_colors)
+    *ofile << type << colors.at(level) << " " << msg << colors.at(log_level::DEFAULT) << std::endl;
+  else
+    *ofile << type << " " << msg << std::endl;
+
   writer.unlock();
 }
 

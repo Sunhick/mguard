@@ -26,9 +26,11 @@ void en_debug_log(bool enable)
 
 void* operator new(size_t size, const char* file, size_t line, const char* func)
 {
-  std::stringstream fmt;
-  fmt << "new'd " << size << " bytes from " << file << "::" << func << " at " << line;
-  log->debug(fmt.str());
+  if (log) {
+    std::stringstream fmt;
+    fmt << "new'd " << size << " bytes from " << file << "::" << func << " at " << line;
+    log->debug(fmt.str());
+  }
   return  malloc(size);// new(size);
 }
 

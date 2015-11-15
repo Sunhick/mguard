@@ -13,6 +13,7 @@
 #include <sstream>
 #include <memory>
 #include <iostream>
+#include <ostream>
 
 #include "mguard.h"
 
@@ -33,7 +34,7 @@ namespace diagnostics {
   class modifier {
     color code;
   public:
-    modifier(color code) : code(code) { }
+  modifier(color code) : code(code) { }
     friend std::ostream& operator<<(std::ostream& os, const modifier& mod) {
       return os << "\033[" << mod.code << "m";
     }
@@ -52,11 +53,13 @@ namespace diagnostics {
     std::mutex writer;
     std::map<log_level, modifier> colors;
     void log(log_level level, const std::string& msg);
+    bool visual_colors = true;
+    std::ostream *ofile = &std::cout;
 
   public:
     bool enable_debug = false;
     
-    logger();
+    logger(std::ostream* out);
     ~logger();
 
     static std::shared_ptr<logger> instance;

@@ -1,5 +1,7 @@
 #include "include/mguard.h"
 #include <string>
+#include <fstream>
+#include <ostream>
 
 struct foo {
   int a;
@@ -20,6 +22,9 @@ int main(int argc, char *argv[])
   for (auto i : {1,2,3,4,5}) {
     delete f[i-1];
   }
+
+  // int* ff = new int[10];
+  // delete ff;
 
   return 0;
 }
